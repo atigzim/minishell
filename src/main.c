@@ -1,135 +1,132 @@
 #include "../minishell.h"
 
-int line_path(char *src)
-{
-	int i;
-	int j;
+// int line_path(char *src)
+// {
+// 	int i;
+// 	int j;
 
-	i = 0;
-	j = 0;
+// 	i = 0;
+// 	j = 0;
 
-	while(src[i])
-	{
-		if (src[i] == ':')
-			j++;
-		i++;
-	}
-	return (j);
-}
-char *give_me_a_path(t_node *com, char **envp)
-{
-	int j;
-	int i;
-	char **path;
+// 	while(src[i])
+// 	{
+// 		if (src[i] == ':')
+// 			j++;
+// 		i++;
+// 	}
+// 	return (j);
+// }
+// char *give_me_a_path(t_node *com, char **envp)
+// {
+// 	int j;
+// 	int i;
+// 	char **path;
 
-	i = 0;
-	j = 0;
-	while(envp[i])
-	{
-		if(ft_strncmp(envp[i],"PATH=", 5) == 0)
-			break;
-		i++;
-	}
-	j = line_path(envp[i]);
-	path = malloc(sizeof(char *) * j + 1);
-	path = ft_split(envp[i], ':');
-	i = 0;
-	while(path[i])
-	{
-		path[i] = ft_strjoin(path[i], "/");
-		path[i] = ft_strjoin(path[i], com->cmd[0]);
-		i++;
-	}
-	i = 0;
-	while(path[i])
-	{
-		if(access(path[i], F_OK) == 0)
-			break;
-		i++;
-	}
-	return (path[i]);
-}
-void ex_com(t_node *com, char **envp)
-{
-	int i;
-	int j;
-	int id;
-	char *path;
+// 	i = 0;
+// 	j = 0;
+// 	while(envp[i])
+// 	{
+// 		if(ft_strncmp(envp[i],"PATH=", 5) == 0)
+// 			break;
+// 		i++;
+// 	}
+// 	j = line_path(envp[i]);
+// 	path = malloc(sizeof(char *) * j + 1);
+// 	path = ft_split(envp[i], ':');
+// 	i = 0;
+// 	while(path[i])
+// 	{
+// 		path[i] = ft_strjoin(path[i], "/");
+// 		path[i] = ft_strjoin(path[i], com->cmd[0]);
+// 		i++;
+// 	}
+// 	i = 0;
+// 	while(path[i])
+// 	{
+// 		if(access(path[i], F_OK) == 0)
+// 			break;
+// 		i++;
+// 	}
+// 	return (path[i]);
+// }
+// void ex_com(t_node *com, char **envp)
+// {
+// 	int i;
+// 	int j;
+// 	int id;
+// 	char *path;
 
-	i = 0;
-	j = 0;
+// 	i = 0;
+// 	j = 0;
 
-	path = give_me_a_path(com, envp);
-	id = fork();
-	if ( id == 0)
-	{
-		if (execve(path, com->cmd, envp) == -1)
-			perror("zsh: command not found");
-		exit(1);
-	}
-	wait(NULL);
-}
-void ex_pipe(t_node *com, int count, char **envp)
-{
-	int i = 0;
-	int fd[2];
-	int prev_fd = -1;
-	pid_t pid;
-	char *path;
+// 	path = give_me_a_path(com, envp);
+// 	id = fork();
+// 	if ( id == 0)
+// 	{
+// 		if (execve(path, com->cmd, envp) == -1)
+// 			perror("zsh: command not found");
+// 		exit(1);
+// 	}
+// 	wait(NULL);
+// }
+// void ex_pipe(t_node *com, int count, char **envp)
+// {
+// 	int i = 0;
+// 	int fd[2];
+// 	int prev_fd = -1;
+// 	pid_t pid;
+// 	char *path;
 
-	while (com && i < count)
-	{
-		if (i < count - 1 && pipe(fd) == -1)
-		{
-			perror("pipe");
-			exit(EXIT_FAILURE);
-		}
+// 	while (com && i < count)
+// 	{
+// 		if (i < count - 1 && pipe(fd) == -1)
+// 		{
+// 			perror("pipe");
+// 			exit(EXIT_FAILURE);
+// 		}
 
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid == 0)
-		{
-			// If there is a previous pipe, read from it
-			if (prev_fd != -1)
-			{
-				dup2(prev_fd, 0); // stdin from previous pipe
-				close(prev_fd);
-			}
-			// If this is not the last command, write to pipe
-			if (i < count - 1)
-			{
-				close(fd[0]);      // Close read end
-				dup2(fd[1], 1);    // stdout to write end
-				close(fd[1]);
-			}
-			path = give_me_a_path(com, envp);
-			execve(path, com->cmd, envp);
-			perror("execve");
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			if (prev_fd != -1)
-				close(prev_fd); // close old read-end
+// 		pid = fork();
+// 		if (pid == -1)
+// 		{
+// 			perror("fork");
+// 			exit(EXIT_FAILURE);
+// 		}
+// 		else if (pid == 0)
+// 		{
+// 			if (prev_fd != -1)
+// 			{
+// 				dup2(prev_fd, 0);
+// 				close(prev_fd);
+// 			}
+// 			if (i < count - 1)
+// 			{
+// 				close(fd[0]);      
+// 				dup2(fd[1], 1);    
+// 				close(fd[1]);
+// 			}
+// 			path = give_me_a_path(com, envp);
+// 			execve(path, com->cmd, envp);
+// 			perror("execve");
+// 			exit(EXIT_FAILURE);
+// 		}
+// 		else
+// 		{
+// 			if (prev_fd != -1)
+// 				close(prev_fd); 
 
-			if (i < count - 1)
-			{
-				close(fd[1]);    // close write-end in parent
-				prev_fd = fd[0]; // store read-end for next child
-			}
-			com = com->next;
-			i++;
-		}
-	}
+// 			if (i < count - 1)
+// 			{
+// 				close(fd[1]);   
+// 				prev_fd = fd[0]; 
+// 			}
+// 			com = com->next;
+// 			i++;
+// 		}
+// 	}
 
-	// Wait for all child processes
-	while (i-- > 0)
-		wait(NULL);
-}
+// 	while (i-- > 0)
+// 		wait(NULL);
+// }
 
 // void ex_pipe(t_node *com, int count, char **envp)
 // {
@@ -237,17 +234,17 @@ int main(int ac, char **av, char **envp)
             }
         } 
 
-        t_node *test_test = test;
-        int f = 0;
-        while (test_test)
-        {
-            f++;
-            test_test = test_test->next;
-        }
-        if (f == 1)
-            ex_com(test, envp);
-        else if (f > 1)
-            ex_pipe(test, f, envp);
+        // t_node *test_test = test;
+        // int f = 0;
+        // while (test_test)
+        // {
+        //     f++;
+        //     test_test = test_test->next;
+        // }
+        // if (f == 1)
+        //     ex_com(test, envp);
+        // else if (f > 1)
+        //     ex_pipe(test, f, envp);
         // while (test_test)
         // {
         //     t_redi *lol = test_test->file;

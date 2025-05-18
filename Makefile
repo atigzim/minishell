@@ -4,7 +4,7 @@ CC = cc
 
 CFLAGS = -Wall -Wextra -Werror  #-g3 -fsanitize=address
 
-SRC = src/main.c src/lexer.c src/parser.c src/syntax_error.c src/expand.c ana/utils.c
+SRC = src/main.c src/lexer.c src/parser.c src/syntax_error.c src/expand.c 
 
 LIBFT = libft/libft.a
 
