@@ -58,10 +58,11 @@ char *find_end(char *start);
 char *expand_val(char *s);
 char *expand_line(char *line, int dquote , char *plus);
 char *qoute_remov(char *line);
-
+/*--------------------------------------------   execution   ----------------------------------------*/
 void ex_com(t_node *com, char **envp);
 char *give_me_a_path(t_node *com, char **envp);
 void ex_pipe(t_node *com,int i, char **envp);
 void ex_pipe(t_node *com, int count, char **envp);
+void echo(t_node *com);
 
 #endif

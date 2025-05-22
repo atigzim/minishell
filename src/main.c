@@ -1,182 +1,5 @@
 #include "../minishell.h"
 
-// int line_path(char *src)
-// {
-// 	int i;
-// 	int j;
-
-// 	i = 0;
-// 	j = 0;
-
-// 	while(src[i])
-// 	{
-// 		if (src[i] == ':')
-// 			j++;
-// 		i++;
-// 	}
-// 	return (j);
-// }
-// char *give_me_a_path(t_node *com, char **envp)
-// {
-// 	int j;
-// 	int i;
-// 	char **path;
-
-// 	i = 0;
-// 	j = 0;
-// 	while(envp[i])
-// 	{
-// 		if(ft_strncmp(envp[i],"PATH=", 5) == 0)
-// 			break;
-// 		i++;
-// 	}
-// 	j = line_path(envp[i]);
-// 	path = malloc(sizeof(char *) * j + 1);
-// 	path = ft_split(envp[i], ':');
-// 	i = 0;
-// 	while(path[i])
-// 	{
-// 		path[i] = ft_strjoin(path[i], "/");
-// 		path[i] = ft_strjoin(path[i], com->cmd[0]);
-// 		i++;
-// 	}
-// 	i = 0;
-// 	while(path[i])
-// 	{
-// 		if(access(path[i], F_OK) == 0)
-// 			break;
-// 		i++;
-// 	}
-// 	return (path[i]);
-// }
-// void ex_com(t_node *com, char **envp)
-// {
-// 	int i;
-// 	int j;
-// 	int id;
-// 	char *path;
-
-// 	i = 0;
-// 	j = 0;
-
-// 	path = give_me_a_path(com, envp);
-// 	id = fork();
-// 	if ( id == 0)
-// 	{
-// 		if (execve(path, com->cmd, envp) == -1)
-// 			perror("zsh: command not found");
-// 		exit(1);
-// 	}
-// 	wait(NULL);
-// }
-// void ex_pipe(t_node *com, int count, char **envp)
-// {
-// 	int i = 0;
-// 	int fd[2];
-// 	int prev_fd = -1;
-// 	pid_t pid;
-// 	char *path;
-
-// 	while (com && i < count)
-// 	{
-// 		if (i < count - 1 && pipe(fd) == -1)
-// 		{
-// 			perror("pipe");
-// 			exit(EXIT_FAILURE);
-// 		}
-
-// 		pid = fork();
-// 		if (pid == -1)
-// 		{
-// 			perror("fork");
-// 			exit(EXIT_FAILURE);
-// 		}
-// 		else if (pid == 0)
-// 		{
-// 			if (prev_fd != -1)
-// 			{
-// 				dup2(prev_fd, 0);
-// 				close(prev_fd);
-// 			}
-// 			if (i < count - 1)
-// 			{
-// 				close(fd[0]);      
-// 				dup2(fd[1], 1);    
-// 				close(fd[1]);
-// 			}
-// 			path = give_me_a_path(com, envp);
-// 			execve(path, com->cmd, envp);
-// 			perror("execve");
-// 			exit(EXIT_FAILURE);
-// 		}
-// 		else
-// 		{
-// 			if (prev_fd != -1)
-// 				close(prev_fd); 
-
-// 			if (i < count - 1)
-// 			{
-// 				close(fd[1]);   
-// 				prev_fd = fd[0]; 
-// 			}
-// 			com = com->next;
-// 			i++;
-// 		}
-// 	}
-
-// 	while (i-- > 0)
-// 		wait(NULL);
-// }
-
-// void ex_pipe(t_node *com, int count, char **envp)
-// {
-// 	int i = 0;
-// 	int fd[2];
-// 	int fd_sev = -1;
-// 	pid_t id;
-// 	char *path;
-
-// 	while (com && i < count )
-// 	{
-// 		if (i < count - 1)
-// 			pipe(fd);
-// 		id = fork();
-// 		if (id == 0)
-// 		{
-// 			if(fd_sev != -1)
-// 			{
-// 				close(fd[0]);
-// 				dup2(fd[1], 0);
-// 				close (fd[1]);
-// 			}
-// 			path = give_me_a_path(com, envp);
-// 			if (execve(path, com->cmd, envp ) == -1)
-// 				perror ("command not found");
-// 		}
-// 		else
-// 		{
-//             if (fd_sev != -1)
-// 				close(fd_sev);
-// 			if(i < count - 1)
-// 			{
-// 				close(fd[1]);
-// 				fd_sev = fd[0];
-// 				close (fd[0]);
-// 			}
-// 			i++;
-// 			com = com->next; 
-          
-// 		}
-//         while (i--)
-//         {
-//            wait(NULL);
-//         }
-        
-          	
-				
-// 	}
-	
-// }
 char *qoute_remov(char *line)
 {
     char *new_line = malloc(sizeof(char) * (ft_strlen(line) + 1));
@@ -234,13 +57,15 @@ int main(int ac, char **av, char **envp)
             }
         } 
 
-        // t_node *test_test = test;
-        // int f = 0;
-        // while (test_test)
-        // {
-        //     f++;
-        //     test_test = test_test->next;
-        // }
+        t_node *test_test = test;
+        int f = 0;
+        while (test_test)
+        {
+            f++;
+            test_test = test_test->next;
+        }
+        if (ft_strncmp(test->cmd[0], "echo", ft_strlen(test->cmd[0])) == 0)
+            echo(test);
         // if (f == 1)
         //     ex_com(test, envp);
         // else if (f > 1)
