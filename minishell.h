@@ -16,6 +16,14 @@ typedef enum e_file_type
     FILE_APPEND,  // >> = 2
     FILE_HEREDOC, // << = 3
 } t_file_type;
+typedef struct s_env
+{
+    char *key; // USER
+    char *value; // atigzim
+    // USER=atigzim
+    // printf("%s=%s")
+    struct s_env *next;
+} t_env;
 
 typedef struct s_redi
 {
@@ -28,6 +36,7 @@ typedef struct s_node
 {
     char **cmd;
     t_redi *file;
+    t_env *env;
     struct s_node *next;
 }t_node;
 
@@ -64,5 +73,9 @@ char *give_me_a_path(t_node *com, char **envp);
 void ex_pipe(t_node *com,int i, char **envp);
 void ex_pipe(t_node *com, int count, char **envp);
 void echo(t_node *com);
+void pwd_execution(t_node *com);
+void cd_execution(t_node *com);
+int	ft_strcmp(const char *s1, const char *s2);
+void env_execution(t_node *com);
 
 #endif

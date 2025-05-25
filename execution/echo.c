@@ -4,7 +4,7 @@ int echo_n(char *arr)
 {
     int i;
 
-    i = 1;
+    i = 0;
     while(arr[i])
     {
         if(arr[i] != 'n')
@@ -26,13 +26,16 @@ void echo(t_node *com)
 		printf("\n");
 		return;
 	}
+	
 	while (i == 0)
 	{
+		// printf("asjfkfhdf\n");
 		i = echo_n (com->cmd[j]);
 		if(i == 1)
 			break;
 		j++;
 	}
+	
 	while (com->cmd[j])
 	{
 		printf ("%s", com->cmd[j]);

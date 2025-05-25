@@ -20,3 +20,15 @@ void ex_com(t_node *com, char **envp)
 	}
 	wait(NULL);
 }
+
+void cd_execution(t_node *com)
+{	
+    if(!com->cmd[1])
+	{
+		if (chdir("/home") == -1)
+        	perror("cd");
+		return ;
+	}
+    if (chdir(com->cmd[1]) == -1)
+        perror("cd");
+}

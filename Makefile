@@ -2,11 +2,11 @@ NAME = minishell
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror  #-g3 -fsanitize=address
+CFLAGS = -g #-Wall -Wextra -Werror -g  #-g3 -fsanitize=address
 
 SRC = src/main.c src/lexer.c src/parser.c src/syntax_error.c src/expand.c\
 	execution/commend.c  execution/pipe.c  execution/utils.c\
-	execution/echo.c
+	execution/echo.c     execution/pwd.c
 
 
 LIBFT = libft/libft.a
