@@ -1,32 +1,47 @@
+# Compiler and flags
+CC = cc
+CFLAGS = #-Wall -Wextra -Werror
+LDFLAGS = -lreadline  # Readline and ncurses dependencies
+
+# Project name
 NAME = minishell
 
-CC = cc
+# Source files
+SRCS = main.c  minishell.c syntax_errors.c Tokenization/split_store.c \
+	libft_functions/utils.c libft_functions/split_cmd.c libft_functions/lst_utils.c \
+	libft_functions/ft_split.c parsing/check_type_cmd.c \
+	libft_functions/ft_strjoin.c parsing/builtins.c expand/expand.c libft_functions/utils1.c \
+	expand/expand_01.c\
+	execution/builtins/env.c execution/execution.c execution/builtins/echo.c \
+	execution/builtins/export.c
 
-CFLAGS = -g #-Wall -Wextra -Werror -g  #-g3 -fsanitize=address
+# Object files
+OBJS = $(SRCS:.c=.o)
 
-SRC = src/main.c src/lexer.c src/parser.c src/syntax_error.c src/expand.c\
-	execution/commend.c  execution/pipe.c  execution/utils.c\
-	execution/echo.c     execution/pwd.c
+# Header files (if any)
+HEADERS = minishell.h
 
+# Default target
+all: $(NAME)
 
-LIBFT = libft/libft.a
+# Build executable
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LDFLAGS)
 
-OBJ = $(SRC:.c=.o)
+# Compile .c to .o
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-all:$(NAME)
-
-$(NAME):$(OBJ) $(LIBFT)
-	@$(CC) $(CFLAGS) $(OBJ) -lreadline $(LIBFT) -o $(NAME)
-
-$(LIBFT):
-	@make -C libft
-
+# Clean object files
 clean:
-	@make -C libft clean
-	@rm -rf $(OBJ)
+	rm -f $(OBJS)
 
+# Full clean (objects and executable)
 fclean: clean
-	@make -C libft fclean
-	@rm -rf $(NAME)
+	rm -f $(NAME)
 
+# Rebuild project
 re: fclean all
+
+# Phony targets (targets that aren't files)
+.PHONY: all clean fclean re
