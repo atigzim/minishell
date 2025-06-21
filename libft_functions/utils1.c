@@ -20,43 +20,43 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-void	ft_bzero(void *s, size_t n)
+int	ft_strncmp(char *s1, const char *s2, unsigned int n)
 {
-	size_t			i;
-	unsigned char	*str;
+	unsigned int	i;
 
-	if(!s)
-		return ;
 	i = 0;
-	str = (unsigned char *)s;
+	if (n == 0)
+		return (0);
+	while (i < n - 1 && (s1[i] == s2[i]) && s1[i] != '\0')
+	{
+		i++;
+	}
+	if (s1[i] != s2[i])
+		return (s1[i] - s2[i]);
+	return (0);
+}
+
+int	ft_isalnum(int c)
+{
+	return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0'
+			&& c <= '9'));
+}
+
+void	*ft_memcpy(void *dst, const void *src, size_t n)
+{
+	unsigned char		*d;
+	const unsigned char	*s;
+	size_t				i;
+
+	if (!dst && !src)
+		return (NULL);
+	d = (unsigned char *)dst;
+	s = (const unsigned char *)src;
+	i = 0;
 	while (i < n)
 	{
-		str[i] = 0;
+		d[i] = s[i];
 		i++;
 	}
-}
-
-int	ft_strncmp(const char *s1, const char *s2, size_t n)
-{
-	size_t			i;
-	unsigned char	*p1;
-	unsigned char	*p2;
-
-	p1 = (unsigned char *)s1;
-	p2 = (unsigned char *)s2;
-	i = 0;
-	while (i < n && (p1[i] || p2[i]))
-	{
-		if (p1[i] != p2[i])
-			return (p1[i] - p2[i]);
-		i++;
-	}
-	return (0);
-}
-
-int	ft_isalpha(int c)
-{
-	if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
-		return (1);
-	return (0);
+	return (dst);
 }

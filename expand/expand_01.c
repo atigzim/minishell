@@ -1,167 +1,141 @@
 #include "../minishell.h"
 
-bool check_expansion(char *str)
+// Change signature to match minishell.h
+char *expand_var(char *str, char **variabls, char **env)
 {
-    if(str[0] == '$' || str[0] == '"')
+    const char *cstr = str;
+    size_t len = strlen(cstr);
+    char *result = malloc(len * 10 + 1); // generous buffer size
+    if (!result)
+        return NULL;
+
+    size_t ri = 0;
+    size_t i = 0;
+    bool in_single_quotes = false;
+    bool in_double_quotes = false;
+
+    while (cstr[i])
     {
-        return true;
+        
+        // Handle single quotes
+        if (cstr[i] == '\'' && !in_double_quotes)
+        {
+            in_single_quotes = !in_single_quotes;
+            result[ri++] = cstr[i++];
+        }
+        // Handle double quotes
+        else if (cstr[i] == '"' && !in_single_quotes)
+        {
+            in_double_quotes = !in_double_quotes;
+            result[ri++] = cstr[i++];
+        }
+        // Handle variable expansion outside single quotes and inside double quotes
+        else if (cstr[i] == '$' && !in_single_quotes)
+        {
+            i++;
+            if (cstr[i] == '\0')
+                break;
+
+            // Get the variable name
+            char var_name[256];
+            size_t vn_i = 0;
+
+            while (cstr[i] && check_end(cstr[i]) && vn_i < sizeof(var_name) - 1)
+                var_name[vn_i++] = cstr[i++];
+            var_name[vn_i] = '\0';
+
+            // Look up the value of the variable
+            char *val = find_var_value(var_name, variabls, env);
+            if (val)
+            {
+                size_t val_len = strlen(val);
+                ft_memcpy(result + ri, val, val_len);
+                ri += val_len;
+            }
+            else
+            {
+                // Variable not found, copy original
+                result[ri++] = '$';
+                ft_memcpy(result + ri, var_name, vn_i);
+                ri += vn_i;
+            }
+        }
+        else
+        {
+            result[ri++] = cstr[i++];
+        }
     }
-    return false;
+    result[ri] = '\0';
+    return result;
 }
 
-char *handle_quotes(char *str)
-{
-    int i = 1;
-    int len = ft_strlen(str);
-    char *new_str;
-
-    if (len == 2)
-    {
-        new_str = malloc(1);
-        new_str[0] = '\0';
-        return new_str;
-    }
-
-    new_str = malloc(len - 1);
-    while (i < len - 1)
-    {
-        new_str[i - 1] = str[i];
-        i++;
-    }
-
-    new_str[i - 1] = '\0';
-    free(str);
-    return new_str;
-}
-
-char *expand_vr(char *str, char **variables, char **env)
+char *remove_quotes(char *str)
 {
     int i = 0;
-    int d = 0;
-    char *new_str = handle_quotes(str);
-    char *expanded_str = NULL;
-    char *var_name;
-    char final_str[1024] = {0};
-    char *all_str = NULL;
-    while(new_str[i] != '$')
-        i++;
-    i++;
-    int j = i;
-    while(new_str[j] && new_str[j] != ' ' && new_str[j] != '\t' && new_str[j] != '"' && new_str[j] != '\'')
-        j++;
-    var_name = malloc(j - i + 1);
-    ft_strlcpy(var_name, new_str + i, j - i + 1);
-    i = 0;
-    while(variables[i])
-    {
-        if(ft_strcmp(variables[i], var_name) == 0)
-        {
-            expanded_str = ft_strdup(env[i]);
-            break;
-        }
-        i++;
-    }
-    if(!variables[i])
-    {
-        return new_str;
-    }
-    d = 0;
-    i = 0;
-    while(new_str[d] != '$')
-    {
-        final_str[i] = new_str[d];
-        i++;
-        d++;
-    }
-    j = ft_strlen(var_name) + 1;
-    while(expanded_str[j])
-    {
-        final_str[i] = expanded_str[j];
-        j++;
-        i++;
-    }
-    int var_len = ft_strlen(var_name);
-    int all = i;
-    i = 0;
-    d++;
-    while(new_str[d + var_len])
-    {
-        final_str[all + i] = new_str[d + var_len];
-        d++;
-        i++;
-    }
-    free(new_str);
-    free(var_name);
-    free(expanded_str);
-    all_str = ft_strdup(final_str);
-    return all_str;
-}
-
-char *normal_expand(char *str, char **variables, char **env)
-{
-    char str_copy[1024];
-    int i = 1;
+    char stripped[1024];
+    bool sq = false;
+    bool dq = false;
     int j = 0;
     while(str[i])
     {
-        str_copy[j] = str[i];
-        i++;
-        j++;
-    }
-    str_copy[j] = '\0';
-    i = 0;
-    char *expanded_str = NULL;
-    while(variables[i])
-    {
-        if(ft_strcmp(variables[i], str_copy) == 0)
+        sq = false;
+        dq = false;
+        while(str[i] != '"' && str[i] != '\'')
+            stripped[j++] = str[i++];
+        if(str[i] == '"')
+            dq = true;
+        else
+            sq = true;
+        if(dq)
         {
-            expanded_str = ft_strdup(env[i]);
-            break;
-        }
-        i++;
-        if(!variables[i])
-        {
-            return str;
-        }
-    }
-    char *final_str = malloc(ft_strlen(expanded_str) - ft_strlen(str_copy) + 1);
-    i = 0;
-    while(expanded_str[i + ft_strlen(str_copy) + 1])
-    {
-        final_str[i] = expanded_str[i + ft_strlen(str_copy) + 1];
-        i++;
-    }
-    final_str[i] = '\0';
-    free(expanded_str);
-    free(str);
-    return final_str;
-}
-
-void expand_variabls(t_lexer *head, char **variables , char **env)
-{
-    t_lexer *tmp = head;
-    int i = 0;
-    while(tmp)
-    {
-        i = 0;
-        while(tmp->cmds[i])
-        {
-            if(check_expansion(tmp->cmds[i]))
+            i++;
+            while(str[i] != '"')
             {
-                if(ft_strchr(tmp->cmds[i], '$'))
-                {
-                    if(ft_strchr(tmp->cmds[i], '"'))
-                        tmp->cmds[i] = expand_vr(tmp->cmds[i], variables, env);
-                    else
-                        tmp->cmds[i] = normal_expand(tmp->cmds[i], variables, env);
-                }
-                else
-                    tmp->cmds[i] = handle_quotes(tmp->cmds[i]);
+                stripped[j++] = str[i++];
             }
-            else if(tmp->cmds[i][0] == '\'')
-                tmp->cmds[i] = handle_quotes(tmp->cmds[i]);
             i++;
         }
-        tmp = tmp->next;
+        else
+        {
+            i++;
+            while(str[i] != '\'')
+            {
+                stripped[j++] = str[i++];
+            }
+            i++;
+        }
     }
+    stripped[j] = '\0';
+    char *str1 = ft_strdup(stripped);
+    return str1;
+}
+
+// Check if a character is valid in a variable name (letters, numbers, or underscores)
+int check_end(char c)
+{
+    return (ft_isalnum((unsigned char)c) || c == '_');
+}
+
+// Find variable value from either environment variables or user-defined variables
+char *find_var_value(const char *name, char **vars, char **env)
+{
+    size_t name_len = strlen(name);
+
+    if (vars)
+    {
+        for (int i = 0; vars[i]; i++)
+        {
+            if (ft_strncmp(vars[i], name, name_len) == 0 && vars[i][name_len] == '=')
+                return vars[i] + name_len + 1;
+        }
+    }
+    if (env)
+    {
+        for (int i = 0; env[i]; i++)
+        {
+            if (ft_strncmp(env[i], name, name_len) == 0 && env[i][name_len] == '=')
+                return env[i] + name_len + 1;
+        }
+    }
+    return NULL;
 }

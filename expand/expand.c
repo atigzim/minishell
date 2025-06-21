@@ -1,52 +1,67 @@
 #include "../minishell.h"
 
-static int var_len(char *str)
-{
-    int len = 0;
-    while (str[len] && str[len] != '=')
-        len++;
-    return len;
-}
-
-static char **vr_split(char **env)
+char **fill_env(char **env)
 {
     int i = 0;
     while(env[i])
-    {
         i++;
-    }
+    
     char **variables = malloc(sizeof(char *) * (i + 1));
-    if (!variables)
-        return NULL;
-    i = 0;
-    while (env[i])
+    if (!variables) return NULL;
+
+    for (int idx = 0; idx < i; idx++)
     {
-        int len = var_len(env[i]);
-        variables[i] = malloc(len + 1);
-        variables[i] = ft_strncpy(variables[i], env[i], len);
-        variables[i][len] = '\0';
-        i++;
+        char *eq_pos = strchr(env[idx], '=');
+        if (!eq_pos) {
+            variables[idx] = ft_strdup("");  // No '=' found: empty string
+        } else {
+            variables[idx] = ft_strdup(eq_pos + 1);
+        }
+        if (!variables[idx]) {
+            // On malloc failure, cleanup previous allocations
+            for (int j = 0; j < idx; j++)
+                free(variables[j]);
+            free(variables);
+            return NULL;
+        }
     }
     variables[i] = NULL;
     return variables;
 }
 
+
+
+
+// Expands variables in all the tokens, respecting quotes
+void expand_lexer(t_lexer *lexer, char **env_var, char **env)
+{
+    t_lexer *current = lexer;
+    while(current)
+    {
+        
+        int i = 0;
+        while(current->cmds[i])
+        {
+            
+            // Expand variables if the string contains a '$'
+            if (ft_strchr(current->cmds[i], '$'))
+            {
+                current->cmds[i] = expand_var(current->cmds[i], env_var, env);
+            }   
+            else if (ft_strchr(current->cmds[i], '"') || (ft_strchr(current->cmds[i], '$')))
+                current->cmds[i] = remove_quotes(current->cmds[i]);
+            i++;
+         
+        }
+        current = current->next;
+    }
+}
+
+// Expand the commands in the lexer (token list)
 void expand(t_lexer *lexer, char **env)
 {
-    char **variables;
-    variables = vr_split(env);
-    t_lexer *tmp = lexer;
-    expand_variabls(tmp, variables, env);
-    // while (lexer)
-    // {
-    //     int i = 0;
-    //     while(lexer->cmds[i])
-    //     {
-    //         printf("%s", lexer->cmds[i]);
-    //         i++;
-    //     }
-    //     lexer = lexer->next;
-    // }
-    // printf("\n");
-    
+    t_lexer *current = lexer;
+    char **env_var;
+    env_var = fill_env(env); // create environment variable list
+    expand_lexer(current, env_var, env);
 }

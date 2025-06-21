@@ -7,15 +7,18 @@ t_lexer *lexer_init(char *str, t_token **tokens)
     int j = 0;
     t_lexer *head = NULL;
     t_lexer *prev = NULL;
-
+    
+    
     while (cmds[i])
     {
+         
         t_lexer *lexer = malloc(sizeof(t_lexer));
         if (!lexer)
             return NULL;
         lexer->str = ft_strdup(cmds[i]);
         lexer->cmds = split_cmd(cmds[i]);
         j = 0;
+       
         while(lexer->cmds[j])
             j++;
         lexer->type = malloc(sizeof(t_type) * j + 1);
@@ -38,11 +41,11 @@ t_lexer *lexer_init(char *str, t_token **tokens)
         prev = lexer;
         i++;
     }
-
+   
     return head;
 }
 
-t_lexer *minishell(char **env, char *str)
+t_min *minishell(char **env, char *str)
 {
     t_token *tokens;
     t_lexer *lexer;
@@ -61,5 +64,10 @@ t_lexer *minishell(char **env, char *str)
     lexer = lexer_init(str, &tokens);
     t_lexer *tmp = lexer;
     expand(tmp, env);
-    return (tmp);
+    t_redir_lexer *redir = NULL;
+    redir = redir_init(lexer);
+    t_heredoc *heredoc = heardoc_init(lexer);
+    t_min *min = inti_min(redir, heredoc, lexer);
+    return (min);
+
 }

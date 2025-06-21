@@ -40,8 +40,8 @@ typedef struct s_redir_lexer
 {
     char *file_name;
     t_type type;
-	char *cmd;
-	char **arg;
+	// char *cmd;
+	// char **arg;
     struct s_redir_lexer *next;
 } t_redir_lexer;
 
@@ -53,35 +53,29 @@ typedef struct s_lexer
 	int		i;
 	struct s_lexer	*next;
 	struct s_lexer	*prev;
-
 }	t_lexer;
 
 typedef struct s_heredoc
 {
 	char *delimiter;
-	char *cmd;
-	char **args;
+	bool expanded; // Indicates if the delimiter has been expanded
+	// char *cmd;
+	// char **args;
 	struct s_heredoc *next;
 } t_heredoc;
 
 typedef struct min
 {
-	t_heredoc *head;
+	t_hearedoc *head;
 	t_redir_lexer *redir_head;
-	t_type		*type;
 	char **cmds;
-	struct min *next;
-} t_min;
-
+}
 // main functions
-t_min *minishell(char **env, char *str);
+void minishell(char **env, char *str);
 t_lexer *lexer_init(char *str, t_token **tokens);
 
 // redirection functions
 t_redir_lexer *redir_init(t_lexer *lexer);
-// redirection utils
-void chec_ac(t_redir_lexer *redir, t_heredoc * heredoc, t_min *min);
-t_min *inti_min(t_redir_lexer *redir, t_heredoc *heredoc, t_lexer *lexer);
 
 // heredoc functions
 t_heredoc *heardoc_init(t_lexer *lexer);

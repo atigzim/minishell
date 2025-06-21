@@ -11,9 +11,7 @@ SRCS = main.c  minishell.c syntax_errors.c Tokenization/split_store.c \
 	libft_functions/utils.c libft_functions/split_cmd.c libft_functions/lst_utils.c \
 	libft_functions/ft_split.c parsing/check_type_cmd.c \
 	libft_functions/ft_strjoin.c parsing/builtins.c expand/expand.c libft_functions/utils1.c \
-	expand/expand_01.c\
-	execution/builtins/env.c execution/execution.c execution/builtins/echo.c \
-	execution/builtins/export.c
+	expand/expand_01.c red/red.c heardoc/heardoc.c red/0utils.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

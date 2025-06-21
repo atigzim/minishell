@@ -3,10 +3,12 @@
 
 t_type check_type(char *str, t_token **tokens)
 {
+    
     if(ft_strlen(str) <= 2)
     {
-        if(str[0] == '|')
+        if(str[0] == '|'){
             return PIPE;
+        }
         else if(str[0] == '<' && str[1] == '<')
             return HERE_DOC;
         else if(str[0] == '>' && str[1] == '>')
@@ -20,6 +22,7 @@ t_type check_type(char *str, t_token **tokens)
         return BUILTIN;
     if(check_cmd(str, tokens))
         return CMD;
+    // printf("hhhhhhhhhhhh dkhal\n");
     if(check_file_name(str, tokens))
         return FILE_NAME;
     return ARGUMENT;
@@ -46,8 +49,9 @@ bool check_cmd(char *str, t_token **tokens)
         }
         head = head->next;
     }
-    if(head->index == 0)
+    if(head && head->index == 0)
     {
+        printf("hhhhhhhhhhhh dkhal\n"); 
         free(cmd_path);
         i = 0;
         while (paths[i])

@@ -2,6 +2,7 @@
 
 bool syntax_errors(char *str)
 {
+   
     if(!pipe_error(str))
         return false;
     if(!check_quotes(str))
@@ -9,6 +10,7 @@ bool syntax_errors(char *str)
     if(!check_redirects(str))
         return false;
     return true;
+     
 }
 
 bool check_redirects(char *str)
@@ -20,6 +22,7 @@ bool check_redirects(char *str)
     {
         if(str[j] == '<' || str[j] == '>')
             i = red = j;
+        // printf("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\n");
         j++;
     }
     i++;
@@ -39,6 +42,7 @@ bool check_redirects(char *str)
         }
         break;
     }
+
     return true;
 }
 
