@@ -17,34 +17,41 @@ bool check_redirects(char *str)
 {
     int i = 0;
     int j = 0;
-    int red = 0;;
+    int red = -1;
+    bool has_redirect = false;
+
     while (str[j] && str[j] != '|')
     {
-        if(str[j] == '<' || str[j] == '>')
-            i = red = j;
-        // printf("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\n");
+        if (str[j] == '<' || str[j] == '>')
+        {
+            red = j;
+            has_redirect = true;
+        }
         j++;
     }
-    i++;
-    if(!str[i] || i == j)
-        return false;
-    while(str[i] && i < j)
+
+    if (!has_redirect)
+        return true; // No redirect => no error
+
+    i = red + 1;
+    while (str[i] && i < j)
     {
-        if(str[i] == ' ' || str[i] == '\t' && i < j)
+        // Skip whitespace
+        while ((str[i] == ' ' || str[i] == '\t') && i < j)
+            i++;
+
+        if (!str[i] || i == j || str[i] == '<' || str[i] == '>' || str[i] == '|')
         {
-            while(str[i] == ' ' || str[i] == '\t' && i < j)
-                i++;
-            if(!str[i] || i == j)
-            {
-                fprintf(stderr, "Error: Missing file name after redirect\n");
-                return false;
-            }
+            fprintf(stderr, "Error: Missing file name after redirect\n");
+            return false;
         }
+
         break;
     }
 
     return true;
 }
+
 
 bool check_quotes(char *str)
 {

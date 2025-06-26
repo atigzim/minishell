@@ -20,7 +20,7 @@ int echo_n(char *arr)
     return (0);
 }
 
-void echo(t_lexer *com)
+void echo(t_min *com)
 {
     int (i), (j);
 

@@ -1,6 +1,6 @@
 #include "../minishell.h"
 
-t_heredoc *heardoc_init(t_lexer *lexer)
+t_heredoc *heredoc_init(t_lexer *lexer)
 {
     t_heredoc *head = NULL;
     t_heredoc *tail = NULL;
@@ -38,6 +38,7 @@ t_heredoc *heardoc_init(t_lexer *lexer)
                     return head;
 
                 node->delimiter = ft_strdup(lexer->cmds[i + 1]);
+                printf("delimi  -> %s\n", node->delimiter);
                 node->cmd = NULL;
                 node->args = NULL;
                 node->next = NULL;

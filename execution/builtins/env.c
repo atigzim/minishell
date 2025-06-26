@@ -66,7 +66,7 @@ t_data *envir(void)
     return (&env);
 }
 
-void env_execution(t_lexer *minishell)
+void env_execution(t_min *minishell)
 {
     
     t_env *tmp;
@@ -74,11 +74,19 @@ void env_execution(t_lexer *minishell)
     tmp = envir()->env;
     if(!tmp)
         return;
-    if(minishell->cmds[1])
+    if( minishell->cmds[1])
         return;
     while (tmp)
     {
-        printf("%s=%s\n", tmp->key, tmp->value);
+        if(tmp->key)
+        {
+            printf("%s=", tmp->key);
+            if(tmp->value)
+                printf("%s\n",tmp->value);
+            else
+                printf("\n");
+        }
+            
         tmp = tmp->next;
     }
     

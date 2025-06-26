@@ -51,7 +51,6 @@ bool check_cmd(char *str, t_token **tokens)
     }
     if(head && head->index == 0)
     {
-        printf("hhhhhhhhhhhh dkhal\n"); 
         free(cmd_path);
         i = 0;
         while (paths[i])

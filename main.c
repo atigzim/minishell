@@ -30,6 +30,8 @@ int main(int ac, char **av, char **env)
 	t_min *min;
 
 	min = NULL;
+	storage_env(env);
+    signal_ex();
 	while(1)
 	{
 		char *str = readline("MINISHELL$: ");
@@ -37,6 +39,7 @@ int main(int ac, char **av, char **env)
 			exit(1);
 		add_history(str);
 		min = minishell(env, str);
+		execution(min, env);
 		// printf("%s\n", min->cmds[0]);
 		// print_par(min);		
 		if(str)

@@ -1,5 +1,6 @@
 #include "../../minishell.h"
 
+// handli ali+=tig
 int plus (char *s)
 {
 	int i;
@@ -18,7 +19,7 @@ char **parsing_export(char *s)
 {
     char **args;
     int i;
-
+    
     i = 0;
     if(!s)
         return (NULL);
@@ -92,7 +93,7 @@ void print_export(t_env *env)
     printf("\n");
 }
 
-void export(t_lexer *com)
+void export(t_min *com)
 {
 
     static t_env *tmp;
@@ -112,11 +113,13 @@ void export(t_lexer *com)
 
     if ((com)->cmds[j])
     {
+        
         while ((com)->cmds[j])
         {
-            if((com)->cmds[j][0] != '=')
+
+            if((com)->cmds[j] && (com)->cmds[j][0] != '=')
             {
-	
+                
                 arg = parsing_export((com)->cmds[j]);
                     if(arg && arg[0] && plus(arg[0]) == 0)
                     {
@@ -133,21 +136,24 @@ void export(t_lexer *com)
                         }
                         else
                         {
+                            
                             env = envir()->env;
                             while(env)
                             {
                                 if(ft_strcmp(env->key, arg[0])== 0)
                                 {
-                                    env->value = arg[1];
+                                    if(arg[1])
+                                        env->value = arg[1];
                                     break;
                                 }
                                 env = env->next;
                             }
+                            
                         }
                     }
-	else if (arg && arg[0] && plus(arg[0]) == 1)
+	                else if (arg && arg[0] && plus(arg[0]) == 1)
                     {
-						
+                        
                         while(env)
                         {
                             k = 0;
@@ -164,6 +170,7 @@ void export(t_lexer *com)
                             env = envir()->env;
                             tmp = malloc(sizeof(t_env));
                             tmp->key = arg[0];
+                            tmp->key[ft_strlen(tmp->key) - 1] = '\0';
                             tmp->value = arg[1];
                             tmp->next = NULL;
                             while (env->next)
@@ -171,12 +178,18 @@ void export(t_lexer *com)
                             env->next = tmp;
                         }
                     }
+                    
             }
+            else
+                printf("minishell: export: `%s': not a valid identifier\n", com->cmds[j]);
             j++;
         }
+
+
     }
     else
     {
+        
         while(env)
         {
             print_export(env);

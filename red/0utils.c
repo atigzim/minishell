@@ -2,93 +2,122 @@
 
 t_min *inti_min(t_redir_lexer *redir, t_heredoc *heredoc, t_lexer *lexer)
 {
-    t_min *min;
-    t_type *type;
     t_min *head = NULL;
     t_min *tail = NULL;
-    char **cmds = NULL;
-    int i, len;
 
     while (redir || heredoc || lexer)
     {
-        min = malloc(sizeof(t_min));
+        t_min *min = malloc(sizeof(t_min));
         if (!min)
         {
             fprintf(stderr, "Memory allocation failed\n");
             return NULL;
         }
-        min->cmds = lexer->cmds;
-        min->redir_head = redir;
+
         min->head = heredoc;
+        min->redir_head = redir;
+        min->type = NULL;
+        min->cmds = NULL;
         min->next = NULL;
 
-        cmds = NULL;
-        len = 0;
+        char **cmds = NULL;
+        int len = 0, i = 0;
 
-
-        // Choose which input source to use for building cmds
-        if (redir && redir->arg)
+        // Determine cmds array and len
+        if (redir && redir->cmd && redir->arg)
         {
-            // printf("%s\n", redir->file_name);
             while (redir->arg[len])
                 len++;
             cmds = malloc(sizeof(char *) * (len + 2));
-            cmds[0] = ft_strdup(redir->cmd);
-            i = 0;
-            while (i < len) {
-                cmds[i + 1] = ft_strdup(redir->arg[i]);
-                i++;
+            if (!cmds)
+            {
+                free(min);
+                return NULL;
             }
+            cmds[0] = ft_strdup(redir->cmd);
+            for (i = 0; i < len; i++)
+                cmds[i + 1] = ft_strdup(redir->arg[i]);
             cmds[len + 1] = NULL;
         }
-        else if (heredoc && heredoc->args)
+        else if (heredoc && heredoc->cmd && heredoc->args)
         {
             while (heredoc->args[len])
                 len++;
             cmds = malloc(sizeof(char *) * (len + 2));
-            cmds[0] = ft_strdup(heredoc->cmd);
-            i = 0;
-            while (i < len) {
-                cmds[i + 1] = ft_strdup(heredoc->args[i]);
-                i++;
+            if (!cmds)
+            {
+                free(min);
+                return NULL;
             }
+            cmds[0] = ft_strdup(heredoc->cmd);
+            for (i = 0; i < len; i++)
+                cmds[i + 1] = ft_strdup(heredoc->args[i]);
             cmds[len + 1] = NULL;
         }
         else if ((redir && redir->cmd) || (heredoc && heredoc->cmd))
         {
-            const char *cmd = NULL;
-            if (redir && redir->cmd)
-                cmd = redir->cmd;
-            else if (heredoc && heredoc->cmd)
-                cmd = heredoc->cmd;
+            const char *cmd = redir && redir->cmd ? redir->cmd : heredoc->cmd;
+            len = 1;
             cmds = malloc(sizeof(char *) * 2);
+            if (!cmds)
+            {
+                free(min);
+                return NULL;
+            }
             cmds[0] = ft_strdup(cmd);
             cmds[1] = NULL;
         }
-        else if(lexer && lexer->cmds)
+        else if (lexer && lexer->cmds)
         {
-           
-             while (lexer->cmds[len])
+            while (lexer->cmds[len])
                 len++;
-            //  printf("sssssssssssssssssssssssssss\n");
-            cmds = malloc(sizeof(char *) * (len + 2));
-            type = malloc(sizeof(t_type));
-            // cmds[0] = ft_strdup(lexer->str);
-           
-            i = 0;
-            while (i < len) {
-                cmds[i] = ft_strdup(lexer->cmds[i]);
-                
-                i++;
+            cmds = malloc(sizeof(char *) * (len + 1));
+            if (!cmds)
+            {
+                free(min);
+                return NULL;
             }
-            cmds[len + 1] = NULL;
-            min->type = lexer->type;
+            for (i = 0; i < len; i++)
+                cmds[i] = ft_strdup(lexer->cmds[i]);
+            cmds[len] = NULL;
         }
         else
         {
-            cmds = malloc(sizeof(char *));
+            cmds = malloc(sizeof(char *) * 1);
+            if (!cmds)
+            {
+                free(min);
+                return NULL;
+            }
             cmds[0] = NULL;
+            len = 0;
         }
+
+        // Allocate and fill type array
+        min->type = malloc(sizeof(t_type) * (len + 1));
+        if (!min->type)
+        {
+            // free cmds array
+            for (i = 0; i < len; i++)
+                free(cmds[i]);
+            free(cmds);
+            free(min);
+            return NULL;
+        }
+
+        for (i = 0; i < len; i++)
+        {
+            // Example logic for types:
+            if (redir && redir->arg)
+                min->type[i] = (i == 0) ? CMD : ARGUMENT;
+            else if (heredoc && heredoc->args)
+                min->type[i] = (i == 0) ? CMD : ARGUMENT;
+            else if (lexer && lexer->type)
+                min->type[i] = lexer->type[i]; // assume lexer->type is valid array
+            else
+                min->type[i] = CMD; // default type
+        }
+        min->type[len] = -1; // sentinel, optional
 
         min->cmds = cmds;
 
@@ -103,8 +132,9 @@ t_min *inti_min(t_redir_lexer *redir, t_heredoc *heredoc, t_lexer *lexer)
             redir = redir->next;
         if (heredoc)
             heredoc = heredoc->next;
-        if(lexer)
+        if (lexer)
             lexer = lexer->next;
     }
+
     return head;
 }

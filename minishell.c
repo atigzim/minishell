@@ -66,8 +66,8 @@ t_min *minishell(char **env, char *str)
     expand(tmp, env);
     t_redir_lexer *redir = NULL;
     redir = redir_init(lexer);
-    t_heredoc *heredoc = heardoc_init(lexer);
+    t_heredoc *heredoc = heredoc_init(lexer);
     t_min *min = inti_min(redir, heredoc, lexer);
+    int i = 0;
     return (min);
-
 }
