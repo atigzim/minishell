@@ -6,7 +6,7 @@
 /*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:06:19 by atigzim           #+#    #+#             */
-/*   Updated: 2025/07/07 00:45:53 by atigzim          ###   ########.fr       */
+/*   Updated: 2025/07/09 15:16:23 by atigzim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ char    *join_args(char **args)
     result = NULL;
     while (args[i])
     {
-        result = ft_strjoin(result, args[i]);
+        result = ft_strjoin_ga(result, args[i]);
         if(args[i + 1])
-            result = ft_strjoin(result, "=");
+            result = ft_strjoin_ga(result, "=");
         i++;
     }
     return (result);
@@ -35,7 +35,7 @@ void loop_env(char **envp, char **line, t_env *tmp, int i)
 {
     while (envp[i])
     {
-        line = ft_split(envp[i], '=');
+        line = ft_split_ga(envp[i], '=');
         if (!line)
         {
             i++;
@@ -49,7 +49,7 @@ void loop_env(char **envp, char **line, t_env *tmp, int i)
         i++;
         if (envp[i])
         {
-            tmp->next = malloc(sizeof(t_env));
+            tmp->next = ft_malloc(sizeof(t_env));
             if (!tmp->next)
                 break;
             ft_bzero(tmp->next, sizeof(t_env));
@@ -71,7 +71,7 @@ void storage_env(char **envp)
         return;
     }
     i = 0;
-    envir()->env = malloc(sizeof(t_env));
+    envir()->env = ft_malloc(sizeof(t_env));
     tmp = envir()->env;
     loop_env(envp, line, tmp, i);
 }

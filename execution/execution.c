@@ -6,7 +6,7 @@
 /*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:08:12 by atigzim           #+#    #+#             */
-/*   Updated: 2025/07/08 21:06:48 by atigzim          ###   ########.fr       */
+/*   Updated: 2025/07/09 15:39:09 by atigzim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,10 @@ void execution(t_node *minishell)
 	t_redi *read;
 	int status;
 	
-	pid = -1;
+	if(!minishell  )
+		return(free_garbage());
 	env = list_arr_env(envir()->env);
+	pid = -1;
 	if(!env)
 		return;
 	tpm = minishell;

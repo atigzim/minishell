@@ -14,20 +14,19 @@
 
 int exit_code = 0;
 
-void free_env()
-{
-    printf("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\n");
-    t_env *env;
-    t_env *temp;
+// void free_env()
+// {
+//     t_env *env;
+//     t_env *temp;
 
-    env = envir()->env;
-    while(env)
-    {
-        temp = env->next;
-        free_unset(env);
-        env = temp;
-    }
-}
+//     env = envir()->env;
+//     while(env)
+//     {
+//         temp = env->next;
+//         free_unset(env);
+//         env = temp;
+//     }
+// }
 int main(int ac,char **av, char **envp)
 {
 
@@ -48,16 +47,17 @@ int main(int ac,char **av, char **envp)
         head = NULL;
         line = readline("MINSHELL : ");
         if (!line)
-        {
-            free_garbage();
-            free_env();
+        {  
+            // free_garbage();
+            // free_env();
             return (0);
         }
         if(!env)
             env = envir()->env;
         add_history(line);
         if(minishell_init(&head, line, env) == 1)
-            free_garbage();
+            continue;
+            // free_garbage();
         else
             execution(head);
         

@@ -6,7 +6,7 @@
 /*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:08:07 by atigzim           #+#    #+#             */
-/*   Updated: 2025/07/08 21:13:24 by atigzim          ###   ########.fr       */
+/*   Updated: 2025/07/09 15:26:22 by atigzim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,6 @@ char  **list_arr_env(t_env *env)
 	arr = ft_malloc(sizeof(char *) * (i + 1));
 	if (!arr)
 		return (NULL);
-
 	i = 0;
 	while (env)
 	{
@@ -116,7 +115,6 @@ char  **list_arr_env(t_env *env)
 		env = env->next;
 	}
 	arr[i] = NULL;
-	i = 0;
 	return (arr);
 }
 
@@ -171,14 +169,14 @@ void child_execve(t_node *com, int flag, char *path, char **envp)
 	if(check_builtins(com->cmd[0]) == 1)
 	{
 		builtins(com);
-		free_garbage();
+		// free_garbage();
 		exit(exit_code);
 	}
 	else
 	{
 		execve(path, com->cmd, envp);
-		free_garbage();
-		free_env();
+		// free_garbage();
+		// free_env();
 		get_exit_code(com->cmd[0]);
 	}
 }
@@ -197,9 +195,8 @@ pid_t	ex_com(t_node *com, char **envp)
 		exit_ex(com);
 	if(!com->file && com->cmd[1] && check_builtins(com->cmd[0]))
 	{
-		printf("dkhalt\n");
 		bultin(com);
-		free_garbage();
+		// free_garbage();
 	}
 	else
 	{

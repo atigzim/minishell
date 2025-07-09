@@ -6,7 +6,7 @@
 /*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:06:32 by atigzim           #+#    #+#             */
-/*   Updated: 2025/07/06 18:41:15 by atigzim          ###   ########.fr       */
+/*   Updated: 2025/07/09 15:17:47 by atigzim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ char **parsing_export(char *s)
         printf("export: `%s': not a valid identifier\n", s);
         return (NULL);
     }
-    args = ft_split(s, '=');
+    args = ft_split_ga(s, '=');
 	
     return (args);
 }
@@ -133,7 +133,7 @@ void export(t_node *com)
                     {
                         if(check_env_kay(arg[0]) == 0)
                         {
-                            tmp = malloc(sizeof(t_env));
+                            tmp = ft_malloc(sizeof(t_env));
                             tmp->key = arg[0];
                             tmp->value = arg[1];
                             tmp->next = NULL;
@@ -176,7 +176,7 @@ void export(t_node *com)
                         if(k != 1)
                         {
                             env = envir()->env;
-                            tmp = malloc(sizeof(t_env));
+                            tmp = ft_malloc(sizeof(t_env));
                             tmp->key = arg[0];
                             tmp->key[ft_strlen(tmp->key) - 1] = '\0';
                             tmp->value = arg[1];

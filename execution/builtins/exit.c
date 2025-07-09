@@ -16,8 +16,8 @@ void exit_ex(t_node *minishell)
 	}
 	else
 	{
-		free_env();
-		free_garbage();
+		// free_env();
+		// free_garbage();
 		exit(exit_code);
 	}
 }

@@ -25,7 +25,6 @@ char *expand_line(char *input, int in_double_quote, char *result, t_env *env_lis
             segment_len = skip_quotes(input, segment_len, &in_double_quote);
         segment = ft_substr(input, 0, segment_len);
         temp_result = ft_strjoin_ga(result, segment);
-        // free(segment);
         result = temp_result;
         if (input[segment_len] == '$')
         {
@@ -77,7 +76,6 @@ int handle_dollar(char **result, char *input, t_env *env_list)
         while (input[var_len] && ft_isalnum(input[var_len]))
             var_len++;
     }
-    // free(expanded_value);
     return (var_len);
 }
 
@@ -102,12 +100,10 @@ char *expand_val(char *input, t_env *env_list)
     {
         if (ft_strcmp(env_node->key, env_key) == 0)
         {
-            // free(env_key);
             return (env_node->value ? ft_strdup_ga(env_node->value) : ft_strdup_ga(""));
         }
         env_node = env_node->next;
     }
-    free(env_key);
     if (dollar_pos[1] && dollar_pos[1] == '?')
         return (ft_itoa(exit_code));
     if (dollar_pos[1] && !ft_isalnum(dollar_pos[1]))
