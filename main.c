@@ -1,48 +1,66 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/05 17:08:43 by atigzim           #+#    #+#             */
+/*   Updated: 2025/07/05 17:08:43 by atigzim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void print_par(t_min *min)
+int exit_code = 0;
+
+void free_env()
 {
-	int i;
+    printf("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\n");
+    t_env *env;
+    t_env *temp;
 
-
- 
-	if(!min)
-		return;
-	while (min)
-	{
-		i = 0;
-		if(min->head)
-			printf("her << %s->",min->head->delimiter);
-		if(min->redir_head)
-			printf("file_name -> %s  type -> %u\n", min->redir_head->file_name,min->redir_head->type );
-		while(min->cmds[i])
-		{
-			printf("min->coms %d = %s   type -> %d\n",i, min->cmds[i] , min->type[i]);
-			i++;
-		}
-		min = min->next;
-	}
-	
-  
+    env = envir()->env;
+    while(env)
+    {
+        temp = env->next;
+        free_unset(env);
+        env = temp;
+    }
 }
-int main(int ac, char **av, char **env)
+int main(int ac,char **av, char **envp)
 {
-	t_min *min;
 
-	min = NULL;
-	storage_env(env);
+    (void)ac;
+    (void)av;
+    char *line;
+    t_env *env = NULL;
+    t_node *head = NULL;
+
     signal_ex();
-	while(1)
-	{
-		char *str = readline("MINISHELL$: ");
-		if(!str)
-			exit(1);
-		add_history(str);
-		min = minishell(env, str);
-		execution(min, env);
-		// printf("%s\n", min->cmds[0]);
-		// print_par(min);		
-		if(str)
-			free(str);
-	}
+    if (!envir()->env)
+    {
+        storage_env(envp);
+        shellvl(); 
+    }
+    while (1)
+    {
+        head = NULL;
+        line = readline("MINSHELL : ");
+        if (!line)
+        {
+            free_garbage();
+            free_env();
+            return (0);
+        }
+        if(!env)
+            env = envir()->env;
+        add_history(line);
+        if(minishell_init(&head, line, env) == 1)
+            free_garbage();
+        else
+            execution(head);
+        
+    }
+    clear_history();
 }

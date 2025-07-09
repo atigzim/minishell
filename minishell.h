@@ -1,141 +1,46 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/05 17:08:50 by atigzim           #+#    #+#             */
+/*   Updated: 2025/07/05 17:08:50 by atigzim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
-#define MINISHELL_H
+# define MINISHELL_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
 #include <readline/readline.h>
+#include <sys/stat.h>
 #include <readline/history.h>
-#include <limits.h>
-#include <sys/wait.h>
-#include <dirent.h>
+#include "libft/libft.h"
+#include <string.h>
+#include <fcntl.h>
 #include <errno.h>
+#include <time.h>
+#include <sys/wait.h>
 #include <signal.h>
-#include <stdbool.h>
+#include "garbage/ft_malloc.h"
+# define RESET " \e[00m"
 
+extern int	exit_code ;
 
-typedef enum s_type
+typedef struct s_redi
 {
-	CMD,
-	ARGUMENT,
-	BUILTIN,
-	PIPE,
-	HERE_DOC,
-	APPEND,
-	RED_IN,
-	RED_OUT,
-	FILE_NAME
-}						t_type;
+    char *file_num;
+    char *heredoc_file;
+    int type;
+    struct s_redi *next;
+}t_redi;
 
-typedef struct s_token
-{
-    char			*value;
-	int			index;
-	struct s_token	*next;
-}						t_token;
-
-typedef struct s_redir_lexer
-{
-    char *file_name;
-    t_type type;
-	char *cmd;
-	char **arg;
-    struct s_redir_lexer *next;
-} t_redir_lexer;
-
-typedef struct s_lexer
-{
-	char    	*str;
-	char **cmds;
-	t_type		*type;
-	int		i;
-	struct s_lexer	*next;
-	struct s_lexer	*prev;
-
-}	t_lexer;
-
-typedef struct s_heredoc
-{
-	char *delimiter;
-	char *cmd;
-	char **args;
-	char *file_name;
-	struct s_heredoc *next;
-} t_heredoc;
-
-typedef struct min
-{
-	t_heredoc *head;
-	t_redir_lexer *redir_head;
-	t_type		*type;
-	char **cmds;
-	struct min *next;
-} t_min;
-
-// main functions
-t_min *minishell(char **env, char *str);
-t_lexer *lexer_init(char *str, t_token **tokens);
-
-// redirection functions
-t_redir_lexer *redir_init(t_lexer *lexer);
-// redirection utils
-void chec_ac(t_redir_lexer *redir, t_heredoc * heredoc, t_min *min);
-t_min *inti_min(t_redir_lexer *redir, t_heredoc *heredoc, t_lexer *lexer);
-
-// heredoc functions
-t_heredoc *heredoc_init(t_lexer *lexer);
-
-// libft functions
-size_t	ft_strlen(const char *str);
-char **split_cmd(char *str);
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
-t_token	*lst_store(void *content, int index);
-char	*ft_strdup(const char *s1);
-char	**ft_split(char const *s, char c);
-int ft_strcmp(char const *s1, char const *s2);
-char	*ft_strjoin(char const *s1, char const *s2);
-char	*ft_strncpy(char *dest, char *src, unsigned int n);
-char	*ft_strchr(const char *s, int c);
-int	ft_strncmp(char *s1, const char *s2, unsigned int n);
-int	ft_isalnum(int c);
-void	*ft_memcpy(void *dst, const void *src, size_t n);
-void	ft_bzero(void *s, size_t n);
-int	ft_isalpha(int c);
-
-// syntax error checking functions
-bool syntax_errors(char *str);
-bool pipe_error(char *str);
-bool check_quotes(char *str);
-bool check_redirects(char *str);
-
-// tokenization functions
-bool split_store(char *str, t_token **head);
-
-// parsing functions
-t_type check_type(char *str, t_token **tokens);
-bool check_cmd(char *str, t_token **tokens);
-bool check_builtin(char *str);
-bool check_file_name(char *str, t_token **tokens);
-
-// expand functions
-void expand(t_lexer *lexer, char **env);
-char *find_var_value(const char *name, char **vars, char **env);
-char *remove_quotes(char *str);;
-char *expand_var(char *str, char **vars, char **env);
-int check_end(char c);
-void execution(t_min *minishell, char **env);
-void builtins(t_min *minishell);
-void ex_com(t_min *com, char **envp);
-char	*get_next_line(int fd);
-// execution
 typedef struct s_env
 {
     char *key; // USER
     char *value; // atigzim
-    // USER=atigzim
-    // printf("%s=%s")
     struct s_env *next;
 } t_env;
 
@@ -144,19 +49,68 @@ typedef struct s_data
     t_env *env;
     int  exit_status;
 }t_data;
-void ex_pipe(t_min *com, char **envp);
-char *give_me_a_path(t_min *com, char **env);
-void storage_env(char **envp);
-void env_execution(t_min *minishell);
-void echo(t_min *com);
-t_data *envir(void);
-void export(t_min *com);
-void unset(t_min *com);
-void pwd_execution(t_min *com);
-void cd_execution(t_min *com);
-void open_readirections(t_min *com);
-// void heredoc(t_heredoc *com);
-void heredoc(t_min *min);
-void signal_ex();
 
+typedef struct s_node
+{
+    char **cmd;
+    t_redi *file;
+
+    struct s_node *next;
+}t_node;
+
+char *join_args(char **args);
+int	minishell_init(t_node **all_cmd, char *line, t_env *info);
+int	d_quote(char *line, int dquote, int quote, int i);
+int	check_pipe(char *line);
+int skip_quotes(char *input, int idx, int *in_double_quote);
+int	handle_dollar(char **result, char *input, t_env *env_list);
+char *expand_val(char *input, t_env *env_list);
+char *expand_line(char *input, int in_double_quote, char *result, t_env *env_list);
+char *find_end(char *dollar_start);
+int	if_check_pipe(char *line, int i, char q);
+int	lexer(t_node **all_cmd, char *s_line, char **p_line);
+char	*fix_line(char *line);
+int	handle_quotes(char *line, char *new_line, int *i, int *l);
+int	handle_redirects(char *line, char *new_line, int *i, int *l);
+int parse_and_tokenize(t_node **cmd_list, char *input_line, char **split_line);
+int	validate_redirections(char **p_line);
+int	count_commands(char **p_line);
+t_node	*create_command_node(t_node *head, char **cmd, int num_cmd);
+t_node	*init_node(int num_cmd);
+void free_node(t_node *node);
+int process_cmd(t_node *new_node, char **cmd);
+t_redi *create_file(t_redi *head, char *file_num, char *check);
+void set_redi_type(t_redi *new_redi, char *check);
+void add_redi_to_list(t_redi *head, t_redi *new_redi);
+char	*qoute_remov(char *line, char q, int i, int l);
+int	check_split(char *line, int i, char q);
+int	len_forma(char *line, int i, int l);
+void execution(t_node *minishell);
+void builtins(t_node *minishell);
+pid_t   ex_com(t_node *com, char **envp);
+pid_t   ex_pipe(t_node *com, char **envp);
+char *give_me_a_path(t_node *com, char **env);
+void storage_env(char **envp);
+void env_execution(t_node *minishell);
+void echo(t_node *com);
+t_data *envir(void);
+void export(t_node *com);
+void unset(t_node *com, int j,  t_env *tmp2 );
+void pwd_execution(t_node *com);
+void cd_execution(t_node *com);
+int check_builtins(char *s);
+int open_readirections(t_node *com);
+char *heredoc(t_node *min, t_redi *redi,t_env *env);
+char  ** list_arr_env(t_env *env);
+void loop_env(char **envp, char **line, t_env *tmp, int i);
+void signal_ex();
+void	ft_puterror(char *cmd, char *msg, int exit_code);
+void	get_exit_code(char *cmd);
+void shellvl();
+void ex_signal();
+void	handler_sig(int sig);
+void free_unset(t_env *tmp);
+void free_env();
+int	count_args(char **arr);
+void exit_ex(t_node *minishell);
 #endif

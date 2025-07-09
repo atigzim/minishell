@@ -1,34 +1,54 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   red.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/05 17:08:01 by atigzim           #+#    #+#             */
+/*   Updated: 2025/07/07 04:55:23 by atigzim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../minishell.h"
 
-void open_readirections(t_min *com)
+int return_fd(t_redi *redi, t_node *com)
 {
-	int fd;
-    int in = dup(STDIN_FILENO);
-    int out = dup(STDOUT_FILENO);
-    t_redir_lexer *redi = com->redir_head;
+    int fd;
+    
+    if (redi->type == 1)  
+        fd = open(redi->file_num, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    else if (redi->type == 0)  
+        fd = open(redi->file_num, O_RDONLY);
+    else if (redi->type == 2)  
+        fd = open(redi->file_num, O_CREAT | O_WRONLY | O_APPEND, 0644);
+    else if (redi->type == 3 && redi->heredoc_file)  
+        fd = open(com->file->heredoc_file, O_RDONLY); 
+    else
+        return (-1);
+    return (fd);
+}
+
+int open_readirections(t_node *com)
+{
+    int fd;
+    t_redi *redi = com->file;
 
     while (redi)
     {
-        if (redi->type == RED_OUT )
-            fd = open(redi->file_name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        else if (redi->type == RED_IN)
-            fd = open(redi->file_name, O_RDONLY);
-        else if (redi->type == APPEND)
-            fd = open(redi->file_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
-        else if (com->head->file_name)
-            fd = open(com->head->file_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
-        if ( fd == -1 )
+        fd = return_fd(redi, com);
+        if (fd == -1)
         {
             perror("open failed");
-            exit (1);
+            exit(1);
         }
-        if (redi->type == RED_IN || com->head->file_name)
+        if (redi->type == 0 || redi->type == 3)
             dup2(fd, STDIN_FILENO);
         else
-            dup2(fd, STDOUT_FILENO);
+            dup2(fd, STDOUT_FILENO); 
+
         close(fd);
-        dup2(STDIN_FILENO, in);
-        dup2(STDOUT_FILENO, out);
         redi = redi->next;
     }
+    return (0);
 }

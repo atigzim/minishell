@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   env.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/05 17:06:19 by atigzim           #+#    #+#             */
+/*   Updated: 2025/07/07 00:45:53 by atigzim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../minishell.h"
 
 char    *join_args(char **args)
@@ -19,18 +31,8 @@ char    *join_args(char **args)
     return (result);
 }
 
-void storage_env(char **envp)
+void loop_env(char **envp, char **line, t_env *tmp, int i)
 {
-    int i;
-    t_env *tmp;
-    char **line;
-
-    if (!envp)
-        return;
-
-    i = 0;
-    envir()->env = malloc(sizeof(t_env));
-    tmp = envir()->env;
     while (envp[i])
     {
         line = ft_split(envp[i], '=');
@@ -44,7 +46,6 @@ void storage_env(char **envp)
             tmp->value = join_args(&line[1]);
         else
             tmp->value = line[1];
-
         i++;
         if (envp[i])
         {
@@ -58,23 +59,40 @@ void storage_env(char **envp)
             tmp->next = NULL;
     }
 }
+void storage_env(char **envp)
+{
+    int i;
+    t_env *tmp;
+    char **line;
+
+    if (!envp)
+    {
+        envir()->env = NULL;
+        return;
+    }
+    i = 0;
+    envir()->env = malloc(sizeof(t_env));
+    tmp = envir()->env;
+    loop_env(envp, line, tmp, i);
+}
 
 t_data *envir(void)
 {
     static t_data env = {0};
-
     return (&env);
 }
 
-void env_execution(t_min *minishell)
+void env_execution(t_node *minishell)
 {
-    
     t_env *tmp;
     
     tmp = envir()->env;
     if(!tmp)
+    {
+        exit_code = 1;
         return;
-    if( minishell->cmds[1])
+    }
+    if( minishell->cmd[1])
         return;
     while (tmp)
     {
@@ -85,8 +103,7 @@ void env_execution(t_min *minishell)
                 printf("%s\n",tmp->value);
             else
                 printf("\n");
-        }
-            
+        }   
         tmp = tmp->next;
     }
     

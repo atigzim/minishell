@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   export.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/05 17:06:32 by atigzim           #+#    #+#             */
+/*   Updated: 2025/07/06 18:41:15 by atigzim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../minishell.h"
 
 // handli ali+=tig
@@ -84,16 +96,13 @@ void sort_env(t_env *export)
 
 void print_export(t_env *env)
 {
-    printf("declare -x ");
     printf("%s", env->key);
     if(env->value)
         printf("=\"%s\"", env->value);
-    // else if(env->value[0] == '\0')
-    //     printf("=""");
     printf("\n");
 }
 
-void export(t_min *com)
+void export(t_node *com)
 {
 
     static t_env *tmp;
@@ -110,17 +119,16 @@ void export(t_min *com)
         sort_env(env);
         i++;
     }
-
-    if ((com)->cmds[j])
+    if ((com)->cmd[j])
     {
         
-        while ((com)->cmds[j])
+        while ((com)->cmd[j])
         {
 
-            if((com)->cmds[j] && (com)->cmds[j][0] != '=')
+            if((com)->cmd[j] && (com)->cmd[j][0] != '=')
             {
                 
-                arg = parsing_export((com)->cmds[j]);
+                arg = parsing_export((com)->cmd[j]);
                     if(arg && arg[0] && plus(arg[0]) == 0)
                     {
                         if(check_env_kay(arg[0]) == 0)
@@ -181,11 +189,13 @@ void export(t_min *com)
                     
             }
             else
-                printf("minishell: export: `%s': not a valid identifier\n", com->cmds[j]);
+            {
+                printf("minishell: export: `%s': not a valid identifier\n", com->cmd[j]);
+                exit_code = 1;
+            }
+               
             j++;
         }
-
-
     }
     else
     {

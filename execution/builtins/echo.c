@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   echo.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: atigzim <atigzim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/05 17:06:14 by atigzim           #+#    #+#             */
+/*   Updated: 2025/07/07 02:02:54 by atigzim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../minishell.h"
 
 int echo_n(char *arr)
@@ -7,6 +19,8 @@ int echo_n(char *arr)
     i = 0;
 	if(!arr)
 		return (1);
+    if(arr[i] == '-' && arr[i + 1] != 'n')
+        return (1);
     if (arr[i] == '-')
         i++;
     while(arr[i])
@@ -20,36 +34,44 @@ int echo_n(char *arr)
     return (0);
 }
 
-void echo(t_min *com)
+void echo(t_node *com)
 {
-    int (i), (j);
+    int (i), (j), (is_error);
 
     i = 0;
     j = 1;
-    if(!com->cmds[j])
+    is_error = 0;
+    if(!com->cmd[j])
     {
-        printf("\n");
+        is_error = printf("\n");
         return;
     }
-	if (com->cmds[j][0] == '\0')
+	if (com->cmd[j][0] == '\0')
 	{
-		printf(" ");
+		is_error = printf(" ");
 		j++;
 	}
-    while (com->cmds[j])
+    while (com->cmd[j])
     {
-        i = echo_n (com->cmds[j]);
+        i = echo_n (com->cmd[j]);
         if(i == 1)
             break;
         j++;
     }
-    while (com->cmds[j])
+    while (com->cmd[j])
     {
-        printf ("%s", com->cmds[j]);
-        if (com->cmds[j + 1])
-            printf(" ");
+        is_error = printf ("%s", com->cmd[j]);
+        if (com->cmd[j + 1])
+            is_error = printf(" ");
         j++;
     }
-    if (echo_n(com->cmds[1]) == 1)
-        printf("\n");
+    if (echo_n(com->cmd[1]) == 1)
+        is_error = printf("\n");
+    if (is_error == -1)
+    {
+        write(2, "minishell: echo: write error: No space left on device\n", 55);
+        exit_code = 1;
+    }
+    else
+        exit_code = 0;
 }

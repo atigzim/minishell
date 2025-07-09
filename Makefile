@@ -1,49 +1,35 @@
-# Compiler and flags
-CC = cc -g
-CFLAGS = #-Wall -Wextra -Werror
-LDFLAGS = -lreadline  # Readline and ncurses dependencies
-
-# Project name
 NAME = minishell
 
-# Source files
-SRCS = main.c  minishell.c syntax_errors.c Tokenization/split_store.c \
-	libft_functions/utils.c libft_functions/split_cmd.c libft_functions/lst_utils.c \
-	libft_functions/ft_split.c parsing/check_type_cmd.c \
-	libft_functions/ft_strjoin.c parsing/builtins.c expand/expand.c libft_functions/utils1.c \
-	expand/expand_01.c red/red.c heardoc/heardoc.c red/0utils.c execution/execution.c\
-	execution/builtins/env.c  execution/builtins/echo.c \
+CC = cc
+
+CFLAGS =#-Wall -Wextra -Werror  # -g3  #-fsanitize=address
+
+SRC = main.c utils00.c expand.c syntax_error.c lexer.c paring.c utils01.c \
+	  execution/commend.c execution/execution.c  execution/pipe.c execution/signal.c\
+	  execution/builtins/env.c  execution/builtins/echo.c \
 	execution/builtins/export.c execution/builtins/unset.c execution/builtins/pwd.c\
-	execution/builtins/cd.c execution/pipe.c execution/commend.c execution/signal.c\
-	execution/readirections/her.c execution/readirections/red.c execution/gnl.c
+	execution/builtins/cd.c  execution/readirections/red.c execution/readirections/her.c\
+	garbage/ft_malloc.c  garbage/utils.c execution/builtins/exit.c\
+	garbage/utils1.c
 
-# Object files
-OBJS = $(SRCS:.c=.o)
+LIBFT = libft/libft.a
 
-# Header files (if any)
-HEADERS = minishell.h
+OBJ = $(SRC:.c=.o)
 
-# Default target
-all: $(NAME)
+all:$(NAME)
 
-# Build executable
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LDFLAGS)
+$(NAME):$(OBJ) $(LIBFT)
+	$(CC) $(CFLAGS) $(OBJ) -lreadline $(LIBFT) -o $(NAME)
 
-# Compile .c to .o
-%.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(LIBFT):
+	make -C libft
 
-# Clean object files
 clean:
-	rm -f $(OBJS)
+	make -C libft clean
+	rm -rf $(OBJ)
 
-# Full clean (objects and executable)
 fclean: clean
-	rm -f $(NAME)
+	make -C libft fclean
+	rm -rf $(NAME)
 
-# Rebuild project
 re: fclean all
-
-# Phony targets (targets that aren't files)
-.PHONY: all clean fclean re

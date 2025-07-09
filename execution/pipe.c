@@ -1,60 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipe.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: w <w@student.42.fr>                        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/05 17:08:17 by atigzim           #+#    #+#             */
+/*   Updated: 2025/07/08 15:36:48 by w                ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
 
-int line_path(char *src)
-{
-	int i;
-	int j;
-
-	i = 0;
-	j = 0;
-
-	while(src[i])
-	{
-		if (src[i] == ':')
-			j++;
-		i++;
-	}
-	return (j);
-}
-
-char *give_me_a_path(t_min *com, char **envp)
-{
-	int j;
-	int i;
-	char **path;
-
-	i = 0;
-	j = 0;
-    
-    if(!envp[0])
-        return(NULL);
-	while(envp[i])
-	{
-		if(ft_strncmp(envp[i],"PATH=", 5) == 0)
-			break;
-		i++;
-	}
-	j = line_path(envp[i]);
-	path = malloc(sizeof(char *) * j + 1);
-	path = ft_split(envp[i], ':');
-	i = 0;
-	while(path[i])
-	{
-		path[i] = ft_strjoin(path[i], "/");
-		path[i] = ft_strjoin(path[i], com->cmds[0]);
-		i++;
-	}
-	i = 0;
-	while(path[i])
-	{
-		if(access(path[i], F_OK) == 0)
-			break;
-		i++;
-	}
-	return (path[i]);
-}
-
-void ex_pipe(t_min *com, char **envp)
+pid_t   ex_pipe(t_node *com, char **envp)
 {
     int fd[2];
     int prev_fd; 
@@ -75,27 +33,27 @@ void ex_pipe(t_min *com, char **envp)
                 dup2(prev_fd, 0); 
                 close(prev_fd);
             }
-
             if (com->next) 
             {
                 close(fd[0]); 
                 dup2(fd[1], 1);
                 close(fd[1]);
             }
-            if(com->type && com->type[0] == BUILTIN)
+            if(com->file)
+                open_readirections(com);
+            if(check_builtins(com->cmd[0]) == 1)
             {
                 builtins(com);
                 exit(0);
             }
             else
             {
-                if (ft_strchr(com->cmds[0], '/'))
-                    path = com->cmds[0]; 
+                if (ft_strchr(com->cmd[0], '/'))
+                    path = com->cmd[0]; 
                 else
                     path = give_me_a_path(com, envp);
-                execve(path, com->cmds, envp);
-                perror("execve");
-                exit(1);
+                execve(path, com->cmd, envp);
+                get_exit_code(com->cmd[0]);
             }
         }
         if (prev_fd != -1)
@@ -107,6 +65,6 @@ void ex_pipe(t_min *com, char **envp)
         }
         com = com->next;
     }
-    // while (wait(NULL) > 0)
-    //     ;
+    
+    return (pid);
 }
